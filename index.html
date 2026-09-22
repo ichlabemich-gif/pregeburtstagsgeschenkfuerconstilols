@@ -1,1 +1,466 @@
 
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Der große Konsolenboss</title>
+  <style>
+    :root {
+      --gold: #c9a24a;
+      --gold-light: #f3d681;
+      --dark: #090805;
+      --panel: #1a1711;
+      --blood: #b21010;
+      --blue: #164e9d;
+      --green: #306f31;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #f7f3e9;
+      color: #18150f;
+      font-family: Georgia, "Times New Roman", serif;
+      overflow-x: hidden;
+    }
+
+    .page {
+      display: none;
+      min-height: 100vh;
+      width: 100%;
+      padding: 32px 18px 52px;
+      text-align: center;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      isolation: isolate;
+    }
+
+    .page.active { display: flex; }
+
+    .content {
+      width: min(100%, 700px);
+      margin: auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    h1, h2, p { margin: 0; }
+
+    .page:not(.boss-page):not(.code-page)::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .22;
+      z-index: -1;
+      background: repeating-linear-gradient(0deg, transparent 0 4px, rgba(74,46,14,.12) 5px 6px);
+    }
+
+    .elden-title {
+      color: #241f15;
+      font-size: clamp(2.2rem, 10vw, 5rem);
+      line-height: .95;
+      letter-spacing: .02em;
+      margin-bottom: 22px;
+      text-shadow: 2px 2px 0 #d9bd73, -1px -1px 0 #fff9dd;
+      animation: cheapJump .75s infinite alternate ease-in-out;
+    }
+
+    .rainbow-letters span:nth-child(6n+1) { color: #d51e1e; }
+    .rainbow-letters span:nth-child(6n+2) { color: #e17816; }
+    .rainbow-letters span:nth-child(6n+3) { color: #ae8700; }
+    .rainbow-letters span:nth-child(6n+4) { color: #158c38; }
+    .rainbow-letters span:nth-child(6n+5) { color: #155fd5; }
+    .rainbow-letters span:nth-child(6n) { color: #8f24ad; }
+
+    .img {
+      display: block;
+      width: 100%;
+      max-width: 520px;
+      max-height: 46vh;
+      margin: 18px auto 24px;
+      object-fit: contain;
+      border: 5px double var(--gold);
+      border-radius: 3px;
+      box-shadow: 0 9px 25px rgba(33,22,6,.35);
+      background: #201b13;
+    }
+
+    .clown { animation: wobble 1s infinite ease-in-out; }
+    .page2-img { animation: sillySpin 2.7s infinite ease-in-out; }
+    .winner {
+      max-width: 680px;
+      max-height: 60vh;
+      width: min(100%, 680px);
+      object-fit: cover;
+      animation: winnerPop .85s infinite alternate ease-out;
+    }
+
+    .elden-button {
+      appearance: none;
+      display: inline-block;
+      width: min(100%, 520px);
+      color: #f6eac1;
+      background:
+        linear-gradient(90deg, rgba(0,0,0,.3), transparent 20%, rgba(0,0,0,.25)),
+        linear-gradient(#4f4330, #19150f 52%, #393020);
+      border: 2px solid #79633a;
+      outline: 1px solid #17120b;
+      box-shadow: inset 0 0 0 2px rgba(255,230,147,.12), 0 5px 0 #080705, 0 10px 15px rgba(0,0,0,.28);
+      border-radius: 2px;
+      padding: 16px 20px;
+      margin: 10px auto;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1rem, 4.8vw, 1.3rem);
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-shadow: 1px 1px 2px #000;
+      cursor: pointer;
+      transition: filter .12s, transform .12s, box-shadow .12s;
+    }
+
+    .elden-button:hover { filter: brightness(1.25); }
+    .elden-button:active {
+      transform: translateY(4px);
+      box-shadow: inset 0 0 0 2px rgba(255,230,147,.12), 0 1px 0 #080705;
+    }
+
+    .blue-button { border-color: #4b8cdf; background: linear-gradient(#2a65a9, #102847 52%, #1c4c81); }
+    .green-button { border-color: #76b566; background: linear-gradient(#467f3b, #173614 52%, #315e29); }
+    .blood-button { border-color: #d55b49; background: linear-gradient(#a8271f, #470c0a 52%, #751a13); }
+    .half-button { border-color: #b88170; background: linear-gradient(90deg, #154d9a 0 50%, #97241d 50% 100%); }
+
+    .question-title {
+      color: #e13090;
+      font-size: clamp(2rem, 9vw, 3.8rem);
+      line-height: 1;
+      margin-bottom: 18px;
+      animation: cheapBounce .65s infinite alternate;
+      text-shadow: 1px 1px 0 #fff;
+    }
+
+    .known-text {
+      font-size: clamp(1.35rem, 6vw, 2.25rem);
+      font-weight: 900;
+      color: #16100b;
+      margin: -5px 0 14px;
+      transform: rotate(-2deg);
+      animation: knownWiggle .55s infinite alternate;
+      text-shadow: 2px 2px 0 #d4b365;
+    }
+
+    .click-button { animation: pulseAndTilt .75s infinite alternate; }
+
+    /* Bosskampf-Frageseite */
+    .boss-page {
+      background-image:
+        linear-gradient(rgba(5,4,2,.34), rgba(5,4,2,.57)),
+        url('https://images.meme-arsenal.com/08ab6267653c05847605f9b0815c0d44.jpg');
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: 100% 100%;
+      color: #f9edc1;
+      text-shadow: 2px 2px 3px #000;
+    }
+
+    .boss-page::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      background: radial-gradient(ellipse at center, transparent 24%, rgba(0,0,0,.64) 100%);
+    }
+
+    .boss-ui {
+      border-top: 4px solid #8e1712;
+      border-bottom: 4px solid #4c0908;
+      background: rgba(13,7,5,.84);
+      padding: 12px 12px 18px;
+      box-shadow: 0 5px 25px #000;
+    }
+
+    .boss-name {
+      font-size: clamp(1.1rem, 5vw, 1.65rem);
+      letter-spacing: .1em;
+      color: #e6d197;
+      margin-bottom: 7px;
+    }
+
+    .boss-health {
+      height: 14px;
+      width: 100%;
+      border: 2px solid #a78b51;
+      background: #190807;
+      margin: 0 auto 22px;
+      box-shadow: 0 0 10px #000;
+    }
+
+    .boss-health > div {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(#e44d45, #7b0e0b);
+    }
+
+    .question {
+      font-size: clamp(1.65rem, 7vw, 3.3rem);
+      font-weight: 900;
+      line-height: 1.04;
+      margin-bottom: 22px;
+      animation: questionWiggle 1.2s infinite;
+    }
+
+    .answers {
+      display: grid;
+      gap: 12px;
+      max-width: 540px;
+      margin: 0 auto;
+    }
+
+    .answer-button { width: 100%; }
+
+    .leberkese {
+      color: #f2dc99;
+      background: rgba(33,19,7,.9);
+      border: 2px dashed #c99e49;
+      padding: 14px;
+      font-size: 1.5rem;
+      font-weight: 800;
+      cursor: pointer;
+      animation: leberDance .5s infinite alternate;
+    }
+
+    .empty-answer {
+      min-height: 62px;
+      display: grid;
+      place-items: center;
+      color: #e9d99b;
+      background: rgba(24,14,8,.9);
+      border: 2px dashed #a9864b;
+      font-size: 1.38rem;
+      font-weight: 800;
+      cursor: pointer;
+      animation: leberDance .7s infinite alternate-reverse;
+    }
+
+    .wrong-title {
+      color: #d31313;
+      font-size: clamp(2rem, 9vw, 4rem);
+      line-height: 1;
+      margin-bottom: 16px;
+      animation: wrongGlitch .35s infinite;
+      text-shadow: 1px 1px #000;
+    }
+
+    .wrong-gif {
+      width: min(100%, 370px);
+      margin: 10px auto 20px;
+      border: 4px double #7d1a15;
+      display: block;
+    }
+
+    .right-text {
+      font-size: clamp(1.4rem, 6vw, 2.6rem);
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: 18px;
+      animation: rainbowText 1.2s linear infinite, cheapBounce .7s infinite alternate;
+    }
+
+    .right-page { overflow: hidden; }
+    .confetti {
+      position: fixed;
+      top: -15vh;
+      width: 11px;
+      height: 23px;
+      z-index: 10;
+      pointer-events: none;
+      animation: fall linear infinite;
+      border-radius: 2px;
+    }
+
+    .code-page {
+      background: radial-gradient(ellipse, #1c1710 0%, #070604 72%);
+      color: #e8d29c;
+    }
+
+    .death-title {
+      color: #bd1c1c;
+      font-size: clamp(2.15rem, 11vw, 5.8rem);
+      line-height: .86;
+      letter-spacing: .08em;
+      margin-bottom: 17px;
+      text-shadow: 0 0 6px #e23a30, 0 0 22px #7a0a09, 3px 3px 0 #170000;
+      animation: deathAppear 1.6s ease-in-out infinite alternate;
+    }
+
+    .amount {
+      color: #c11b1b;
+      font-size: clamp(2.8rem, 13vw, 6.8rem);
+      font-weight: 900;
+      letter-spacing: .02em;
+      margin: 10px 0 24px;
+      text-shadow: 0 0 4px #f05245, 0 0 20px #700000, 3px 3px 0 #140000;
+      animation: deathAppear 1.6s ease-in-out infinite alternate-reverse;
+    }
+
+    .code-label { font-size: 1.35rem; font-weight: 700; margin-bottom: 10px; }
+
+    .code-box {
+      background: #090806;
+      color: #f4e6b9;
+      border: 3px double #c7a658;
+      border-radius: 2px;
+      padding: 22px 12px;
+      font-family: Consolas, monospace;
+      font-size: clamp(1.1rem, 5.6vw, 2rem);
+      font-weight: 900;
+      letter-spacing: 2px;
+      word-break: break-all;
+      margin: 0 auto 18px;
+      max-width: 560px;
+      box-shadow: inset 0 0 24px #000, 0 0 20px rgba(194,150,54,.22);
+    }
+
+    .hint { font-family: Arial, sans-serif; font-size: .88rem; color: #a99e86; margin-top: 14px; }
+
+    @keyframes cheapJump { from { transform: translateY(0) rotate(-2deg) scale(1); } to { transform: translateY(-18px) rotate(2deg) scale(1.05); } }
+    @keyframes wobble { 0%,100% { transform: rotate(-4deg) translateX(-4px); } 50% { transform: rotate(5deg) translateX(5px) scale(1.03); } }
+    @keyframes sillySpin { 0%,100% { transform: rotate(-5deg) scale(1); } 50% { transform: rotate(5deg) scale(1.06); } }
+    @keyframes cheapBounce { from { transform: translateY(0) scale(1); } to { transform: translateY(-12px) scale(1.06); } }
+    @keyframes pulseAndTilt { from { transform: scale(1) rotate(-2deg); } to { transform: scale(1.08) rotate(2deg); } }
+    @keyframes knownWiggle { from { transform: rotate(-3deg) scale(1); } to { transform: rotate(3deg) scale(1.06); } }
+    @keyframes questionWiggle { 0%,100%{transform:rotate(-1deg)} 50%{transform:rotate(1deg) scale(1.02)} }
+    @keyframes leberDance { from{transform:rotate(-2deg)} to{transform:rotate(2deg) scale(1.04)} }
+    @keyframes wrongGlitch { 0%{transform:translateX(-3px)} 50%{transform:translateX(3px) skewX(-2deg)} 100%{transform:translateX(-2px)} }
+    @keyframes winnerPop { from { transform: scale(.72) rotate(-3deg); } to { transform: scale(1.06) rotate(3deg); } }
+    @keyframes rainbowText { 0%{color:#f21c1c} 20%{color:#ff851b} 40%{color:#c59f00} 60%{color:#0fae49} 80%{color:#146dff} 100%{color:#a125e8} }
+    @keyframes deathAppear { from { opacity: .68; transform: scale(.94); } to { opacity: 1; transform: scale(1.04); } }
+    @keyframes fall { to { transform: translate3d(var(--drift), 125vh, 0) rotate(900deg); } }
+
+    @media (max-width: 420px) {
+      .page { padding-inline: 13px; }
+      .elden-button { padding: 14px 12px; }
+      .boss-ui { padding-inline: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Seite 1 -->
+  <section class="page active" id="page1">
+    <div class="content">
+      <h1 class="elden-title rainbow-letters" aria-label="Du hast gewonnen!!!!!! 1!!">
+        <span>D</span><span>u</span> <span>h</span><span>a</span><span>s</span><span>t</span><br>
+        <span>g</span><span>e</span><span>w</span><span>o</span><span>n</span><span>n</span><span>e</span><span>n</span><span>!</span><span>!</span><span>!</span><span>!</span><span>!</span><span>!</span> <span>1</span><span>!</span><span>!</span>
+      </h1>
+      <img class="img clown" src="https://c8.alamy.com/compde/ct8220/clown-mit-trompete-ct8220.jpg" alt="Clown mit Trompete" />
+      <button class="elden-button blue-button" onclick="goTo('page2')">WAS HAB ICH GEWONNEN???</button>
+    </div>
+  </section>
+
+  <!-- Seite 2 -->
+  <section class="page" id="page2">
+    <div class="content">
+      <h1 class="question-title">du musst nur 1 frage<br>beantworten richtig</h1>
+      <p class="known-text">die die kenn die kenn</p>
+      <img class="img page2-img" src="https://images.immediate.co.uk/production/volatile/sites/3/2025/02/kingdom-come-deliverance-2-barley-riddle-answers-80f8105.jpg?quality=90&amp;webp=true&amp;resize=1500,1001" alt="Kingdom Come Deliverance Bild" />
+      <button class="elden-button blue-button click-button" onclick="goTo('page3')">klick hier doch.</button>
+    </div>
+  </section>
+
+  <!-- Seite 3 / Bosskampf -->
+  <section class="page boss-page" id="page3">
+    <div class="content boss-ui">
+      <p class="boss-name">KONSOLEN-WAHL — LETZTE PRÜFUNG</p>
+      <div class="boss-health" aria-label="Boss Lebensleiste"><div></div></div>
+      <h1 class="question">die nächste konsole bei dir soll welche farbe werden?</h1>
+      <div class="answers">
+        <button class="elden-button answer-button blue-button" onclick="wrongAnswer()">Blau</button>
+        <div class="leberkese" role="button" tabindex="0" onclick="wrongAnswer()" onkeydown="if(event.key==='Enter') wrongAnswer()">leberkese</div>
+        <button class="elden-button answer-button green-button" onclick="rightAnswer()">Grün</button>
+        <div class="empty-answer" role="button" tabindex="0" onclick="wrongAnswer()" onkeydown="if(event.key==='Enter') wrongAnswer()">eier lecken.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Falsch -->
+  <section class="page" id="wrong">
+    <div class="content">
+      <h1 class="wrong-title">Ouh kage man das war jz falsch hahav ohman.</h1>
+      <img class="wrong-gif" src="https://i.pinimg.com/originals/7e/e5/64/7ee564be85f1e67b3f37292ad2daee0e.gif" alt="Trauriges GIF" />
+      <button class="elden-button blood-button" onclick="goTo('page2')">ich muss in die augen vom wahrheit sehen und verstehen dass die andere konsole namens x die bessere wahl wäre.</button>
+    </div>
+  </section>
+
+  <!-- Richtig -->
+  <section class="page right-page" id="right">
+    <div class="content">
+      <h1 class="right-text">!!!!!! Richtig natürlich wirds die xbox dann<br><br>passt, jz eh hah hast gewonnen und ich schenk dir ein code zum geburtstag auch wenns noch nich dein geburtstag is aber wir müssen Dune zocken !!</h1>
+      <img class="img winner" src="https://i.pinimg.com/736x/4f/9f/e8/4f9fe89f4ed51127618a21c74b89594e.jpg" alt="Gewonnen" />
+      <button class="elden-button half-button" onclick="goTo('code')">hier zum code.</button>
+    </div>
+  </section>
+
+  <!-- Code -->
+  <section class="page code-page" id="code">
+    <div class="content">
+      <h1 class="death-title">PSN GUTHABEN</h1>
+      <p class="amount">67.2509€</p>
+      <p class="code-label">code:</p>
+      <!-- HIER SPÄTER NUR DEINEN ECHTEN PSN-CODE EINTRAGEN -->
+      <div class="code-box" id="psnCode">DEIN-PSN-CODE-HIER</div>
+      <button class="elden-button half-button" onclick="copyCode()">CODE KOPIEREN</button>
+      <a class="elden-button blue-button" href="https://store.playstation.com/de-de/pages/latest" target="_blank" rel="noopener">ZUM PLAYSTATION STORE / CODE EINLÖSEN</a>
+      <p class="hint" id="copyHint">Code kopieren und im PlayStation Store unter „Codes einlösen“ eingeben.</p>
+    </div>
+  </section>
+
+  <script>
+    function goTo(id) {
+      document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (id === 'right') startConfetti(); else stopConfetti();
+    }
+
+    function wrongAnswer() { goTo('wrong'); }
+    function rightAnswer() { goTo('right'); }
+
+    function copyCode() {
+      const code = document.getElementById('psnCode').innerText.trim();
+      navigator.clipboard.writeText(code).then(() => {
+        document.getElementById('copyHint').innerText = '✅ Code wurde kopiert. JETZT DUNE ZOCKEN.';
+      }).catch(() => {
+        document.getElementById('copyHint').innerText = 'Code lange drücken / markieren und selbst kopieren.';
+      });
+    }
+
+    let confettiTimer = null;
+    function startConfetti() {
+      stopConfetti();
+      const colors = ['#e52b25', '#f1c83d', '#1976d2', '#21a64b', '#9c27b0', '#ff8c00'];
+      confettiTimer = setInterval(() => {
+        const bit = document.createElement('i');
+        bit.className = 'confetti';
+        bit.style.left = Math.random() * 100 + 'vw';
+        bit.style.background = colors[Math.floor(Math.random() * colors.length)];
+        bit.style.animationDuration = (2.2 + Math.random() * 2.2) + 's';
+        bit.style.setProperty('--drift', ((Math.random() - .5) * 45) + 'vw');
+        document.body.appendChild(bit);
+        setTimeout(() => bit.remove(), 5000);
+      }, 95);
+    }
+
+    function stopConfetti() {
+      clearInterval(confettiTimer);
+      confettiTimer = null;
+      document.querySelectorAll('.confetti').forEach(bit => bit.remove());
+    }
+  </script>
+</body>
+</html>

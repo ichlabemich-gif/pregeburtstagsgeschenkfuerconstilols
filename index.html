@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Xbox Ritter: PS Gegner</title>
+  <title>Xbox Ritter: Boss Fight</title>
   <style>
     :root {
       --gold: #c8a64d;
       --dark: #090807;
-      --panel: #18130e;
-      --green: #38c657;
-      --red: #b51d1a;
+      --green: #3fc85b;
+      --red: #c12923;
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -39,7 +38,6 @@
     }
 
     .screen.active { display: flex; }
-
     .content { width: min(100%, 700px); margin: auto; position: relative; }
 
     .elden-title {
@@ -52,11 +50,11 @@
       animation: titlePulse 1.2s infinite alternate;
     }
 
-    .sub { font-family: Arial, sans-serif; color: #cbc0a0; font-size: 1rem; line-height: 1.35; margin: 0 auto 20px; max-width: 500px; }
+    .sub { font-family: Arial, sans-serif; color: #cbc0a0; font-size: 1rem; line-height: 1.35; margin: 0 auto 20px; max-width: 520px; }
 
     .big-img {
-      width: min(100%, 440px);
-      max-height: 38vh;
+      width: min(100%, 480px);
+      max-height: 42vh;
       object-fit: contain;
       display: block;
       margin: 16px auto;
@@ -68,7 +66,7 @@
     .elden-button {
       appearance: none;
       display: inline-block;
-      width: min(100%, 500px);
+      width: min(100%, 520px);
       border: 2px solid #907744;
       outline: 1px solid #120e09;
       border-radius: 2px;
@@ -89,36 +87,71 @@
     .elden-button:active { transform: translateY(4px); box-shadow: inset 0 0 0 2px rgba(255,224,136,.14), 0 1px 0 #050403; }
     .green-button { border-color: #5cae63; background: linear-gradient(#3d833e, #133d18 55%, #265d2d); }
     .red-button { border-color: #d06556; background: linear-gradient(#a42b23, #470b08 55%, #741a13); }
-    .blue-red { border-color: #a78a70; background: linear-gradient(90deg, #164f9d 0 50%, #94221b 50% 100%); }
 
     /* SPIEL */
     #gameScreen { padding: 8px; overflow: hidden; background: #050505; }
-    #gameWrap { width: min(100%, 560px); height: min(100vh, 820px); position: relative; overflow: hidden; border: 4px solid #9f8146; box-shadow: 0 0 0 3px #1a1208, 0 0 42px rgba(210,165,58,.3); background: #20170d; }
-
-    #gameCanvas { width: 100%; height: 100%; display: block; touch-action: none; background: #21170e; }
+    #gameWrap {
+      width: min(100%, 700px);
+      height: min(100vh, 820px);
+      position: relative;
+      overflow: hidden;
+      border: 4px solid #9f8146;
+      box-shadow: 0 0 0 3px #1a1208, 0 0 42px rgba(210,165,58,.3);
+      background: #21170e;
+    }
+    #gameCanvas { width: 100%; height: 100%; display: block; touch-action: none; }
 
     .game-ui { position: absolute; left: 10px; right: 10px; top: 10px; z-index: 4; pointer-events: none; text-shadow: 2px 2px #000; }
     .boss-name { color: #ead496; font-size: clamp(.8rem, 3.7vw, 1rem); letter-spacing: .11em; margin-bottom: 4px; }
-    .bar { height: 14px; border: 2px solid #bda167; background: #170606; box-shadow: 0 2px 6px #000; }
-    #enemyBar { height: 100%; width: 100%; background: linear-gradient(#e34d45, #74100d); transition: width .2s; }
+    .bar { height: 16px; border: 2px solid #bda167; background: #180706; box-shadow: 0 2px 6px #000; }
+    #enemyBar { height: 100%; width: 100%; background: linear-gradient(#e54d45, #76110d); transition: width .16s; }
     .xp-row { margin-top: 10px; display: flex; align-items: center; gap: 8px; font-family: Arial, sans-serif; font-weight: 800; color: #d7dbbd; font-size: .8rem; }
     .xp-bar { flex: 1; height: 12px; border: 2px solid #79a65a; background: #0f190c; }
-    #xpFill { height: 100%; width: 0%; background: linear-gradient(90deg, #49d557, #c8f366); transition: width .18s; }
-    #scoreText { margin-top: 7px; color: #e9d79c; font-family: Arial, sans-serif; font-size: .86rem; }
+    #xpFill { height: 100%; width: 0%; background: linear-gradient(90deg, #49d557, #c8f366); transition: width .14s; }
+    #levelText { min-width: 42px; }
+    #helpText { margin-top: 8px; color: #e9d79c; font-family: Arial, sans-serif; font-size: .75rem; }
 
-    .controls { position: absolute; z-index: 5; left: 0; right: 0; bottom: 12px; display: flex; justify-content: space-between; padding: 0 18px; }
-    .move-button { width: 92px; height: 74px; border-radius: 50%; border: 3px solid #c7a455; color: #f5e1a3; background: radial-gradient(circle at 35% 30%, #554326, #16110b 70%); box-shadow: inset 0 0 10px #000, 0 5px 0 #060504; font-size: 2.4rem; font-weight: 900; cursor: pointer; user-select: none; touch-action: none; }
+    .controls { position: absolute; z-index: 5; left: 0; right: 0; bottom: 12px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; align-items: end; padding: 0 12px; }
+    .move-button {
+      height: 68px;
+      border-radius: 50%;
+      border: 3px solid #c7a455;
+      color: #f5e1a3;
+      background: radial-gradient(circle at 35% 30%, #554326, #16110b 70%);
+      box-shadow: inset 0 0 10px #000, 0 5px 0 #060504;
+      font-size: 2rem;
+      font-weight: 900;
+      cursor: pointer;
+      user-select: none;
+      touch-action: none;
+    }
+    .attack-button { border-color: #cc684f; color: #ffd5b2; background: radial-gradient(circle at 35% 30%, #8b3327, #260b08 70%); font-size: 1rem; font-family: Georgia, serif; }
+    .jump-button { border-color: #68a9d3; color: #ccecff; background: radial-gradient(circle at 35% 30%, #326a91, #0b1c2b 70%); font-size: 1rem; font-family: Georgia, serif; }
     .move-button:active { transform: translateY(4px); box-shadow: inset 0 0 10px #000, 0 1px 0 #060504; }
 
-    .game-msg { position: absolute; left: 12px; right: 12px; top: 43%; z-index: 8; color: #f4dea1; font-size: clamp(1.8rem, 10vw, 3.7rem); font-weight: 900; line-height: .9; text-shadow: 0 0 8px #f4d365, 4px 4px #1a0903; pointer-events: none; opacity: 0; transform: scale(.7); transition: opacity .2s, transform .2s; }
+    .game-msg {
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      top: 39%;
+      z-index: 8;
+      color: #f4dea1;
+      font-size: clamp(1.8rem, 10vw, 3.7rem);
+      font-weight: 900;
+      line-height: .9;
+      text-shadow: 0 0 8px #f4d365, 4px 4px #1a0903;
+      pointer-events: none;
+      opacity: 0;
+      transform: scale(.7);
+      transition: opacity .2s, transform .2s;
+    }
     .game-msg.show { opacity: 1; transform: scale(1); }
     .game-msg small { display: block; font-family: Arial, sans-serif; font-size: .22em; letter-spacing: 0; color: #d4c399; margin-top: 14px; text-shadow: 2px 2px #000; }
 
-    /* Ergebnis */
+    /* Ende */
     .death { color: #ca2521; font-size: clamp(3rem, 16vw, 7rem); letter-spacing: .09em; text-shadow: 0 0 6px #eb5347, 0 0 25px #780b09, 4px 4px #180000; margin: 0 0 18px; animation: deathPulse 1.35s infinite alternate; }
-    .win-text { font-size: clamp(1.5rem, 7vw, 3rem); font-weight: 900; line-height: 1.1; margin: 0 0 15px; animation: rainbow 1.3s linear infinite, titlePulse .7s infinite alternate; }
-    .winner { width: min(100%, 610px); max-height: 55vh; object-fit: cover; border: 5px double var(--gold); box-shadow: 0 8px 30px #000; animation: winnerPop .75s infinite alternate; }
-
+    .win-text { font-size: clamp(1.45rem, 7vw, 2.9rem); font-weight: 900; line-height: 1.1; margin: 0 0 15px; animation: rainbow 1.3s linear infinite, titlePulse .7s infinite alternate; }
+    .winner { width: min(100%, 640px); max-height: 55vh; object-fit: cover; border: 5px double var(--gold); box-shadow: 0 8px 30px #000; animation: winnerPop .75s infinite alternate; }
     .confetti { position: fixed; width: 10px; height: 22px; top: -12vh; pointer-events: none; z-index: 50; animation: fall linear infinite; }
 
     .code-screen { background: radial-gradient(ellipse at 50% 40%, #21160f 0%, #060504 70%); }
@@ -140,11 +173,11 @@
   <!-- Start -->
   <section class="screen active" id="startScreen">
     <div class="content">
-      <h1 class="elden-title">XBOX RITTER<br>GEGEN DIE PS<br>MONSTER</h1>
-      <p class="sub">Sammle grüne Energie. Besiege die komischen PlayStation-Gegner. Erreiche Level 3 und sichere den Gutschein.</p>
-      <img class="big-img" src="https://c8.alamy.com/compde/ct8220/clown-mit-trompete-ct8220.jpg" alt="Der königliche Clown verkündet das Turnier" />
-      <button class="elden-button green-button" onclick="startGame()">DAS ABENTEUER BEGINNEN</button>
-      <p class="hint">Steuerung: Links / Rechts unten drücken. Am PC gehen auch A/D oder Pfeiltasten.</p>
+      <h1 class="elden-title">XBOX RITTER<br>GEGEN DEN<br>PS BOSS</h1>
+      <p class="sub">2D Boss Fight. Spring über seine Schläge und Projektile, haue mit dem Schwert zu und sammle durch Schaden XP.</p>
+      <img class="big-img" src="https://i.pinimg.com/originals/04/df/34/04df34390f2888b227eebac2f541f463.jpg" alt="Startbild" />
+      <button class="elden-button green-button" onclick="startGame()">LOS GEHTSSS</button>
+      <p class="hint">Am Handy: ← →, SPRUNG und HAUEN. Am PC: A/D oder Pfeile, Leertaste zum Springen, F zum Hauen.</p>
     </div>
   </section>
 
@@ -153,15 +186,17 @@
     <div id="gameWrap">
       <canvas id="gameCanvas"></canvas>
       <div class="game-ui">
-        <div class="boss-name">DER EKLIGE PLAYSTATION-SCHWARM</div>
+        <div class="boss-name">DER EKLIGE PLAYSTATION-BOSS</div>
         <div class="bar"><div id="enemyBar"></div></div>
         <div class="xp-row"><span>XP</span><div class="xp-bar"><div id="xpFill"></div></div><span id="levelText">LVL 1</span></div>
-        <div id="scoreText">GRÜNE ENERGY: 0 / 15</div>
+        <div id="helpText">Boss treffen = XP. Seine Faust und den Fernangriff NICHT fressen.</div>
       </div>
       <div class="game-msg" id="gameMsg"></div>
       <div class="controls">
         <button class="move-button" id="leftBtn" aria-label="Nach links">←</button>
+        <button class="move-button jump-button" id="jumpBtn" aria-label="Springen">SPRUNG</button>
         <button class="move-button" id="rightBtn" aria-label="Nach rechts">→</button>
+        <button class="move-button attack-button" id="attackBtn" style="grid-column: 1 / 4; width: min(180px, 60vw); justify-self:center;" aria-label="Hauen">⚔ HAUEN ⚔</button>
       </div>
     </div>
   </section>
@@ -170,7 +205,7 @@
   <section class="screen" id="loseScreen">
     <div class="content">
       <h1 class="death">YOU DIED</h1>
-      <p class="sub">Ein ekliger PS-Gegner hat den Xbox-Ritter erwischt. Das ist nicht die Wahrheit. Versuch es nochmal.</p>
+      <p class="sub">Der eklige PS-Boss hat dich erwischt. Du musst seine Faust überspringen und seinen Rotz-Fernangriff vermeiden.</p>
       <img class="big-img" src="https://i.pinimg.com/originals/7e/e5/64/7ee564be85f1e67b3f37292ad2daee0e.gif" alt="Trauriges Meme" />
       <button class="elden-button red-button" onclick="startGame()">ICH KANN ES BESSER</button>
     </div>
@@ -179,11 +214,10 @@
   <!-- Gewonnen -->
   <section class="screen" id="winScreen">
     <div class="content">
-      <h1 class="win-text">BOSS BESIEGT!!!<br>DU HAST DIE GRÜNE ENERGY GEMASTERT</h1>
-      <p class="sub">Der Xbox-Ritter hat den ekligen PlayStation-Schwarm überlebt. Jetzt kommt dein nicht-Geburtstags-Geschenk, weil wir Dune zocken müssen.</p>
+      <h1 class="win-text">BOSS BESIEGT geil haha jz ja schnell schnell code einlösen und dune runterladen</h1>
       <img class="winner" src="https://i.pinimg.com/736x/4f/9f/e8/4f9fe89f4ed51127618a21c74b89594e.jpg" alt="Siegerbild" />
       <br>
-      <button class="elden-button blue-red" onclick="showScreen('codeScreen')">HIER ZUM CODE</button>
+      <button class="elden-button" onclick="showScreen('codeScreen')">HIER ZUM CODE</button>
     </div>
   </section>
 
@@ -195,7 +229,7 @@
       <p class="code-label">code:</p>
       <!-- NUR DIESEN TEXT SPÄTER DURCH DEN ECHTEN PSN-CODE ERSETZEN -->
       <div class="code-box" id="psnCode">DEIN-PSN-CODE-HIER</div>
-      <button class="elden-button blue-red" onclick="copyCode()">CODE KOPIEREN</button>
+      <button class="elden-button" onclick="copyCode()">CODE KOPIEREN</button>
       <a class="elden-button" href="https://store.playstation.com/de-de/pages/latest" target="_blank" rel="noopener">PLAYSTATION STORE ÖFFNEN</a>
       <p class="hint" id="copyHint">Kopiere den Code und gehe im PlayStation Store auf „Codes einlösen“.</p>
     </div>
@@ -208,12 +242,10 @@
     const gameMsg = document.getElementById('gameMsg');
     const xpFill = document.getElementById('xpFill');
     const levelText = document.getElementById('levelText');
-    const scoreText = document.getElementById('scoreText');
     const enemyBar = document.getElementById('enemyBar');
 
-    let W = 0, H = 0, gameRunning = false, frameId = null;
-    let player, items, enemies, score, level, xp, moveLeft, moveRight, spawnTick, enemyTick, invincible, confettiTimer;
-    const targetScore = 15;
+    let W = 0, H = 0, groundY = 0, gameRunning = false, frameId = null;
+    let player, boss, projectiles, level, xp, moveLeft, moveRight, attackQueued, invuln, bossAttackTimer, confettiTimer;
 
     function showScreen(id) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -224,15 +256,10 @@
     function resizeCanvas() {
       const r = gameWrap.getBoundingClientRect();
       const ratio = Math.min(window.devicePixelRatio || 1, 2);
-      W = Math.floor(r.width * ratio);
-      H = Math.floor(r.height * ratio);
-      canvas.width = W;
-      canvas.height = H;
-      canvas.style.width = r.width + 'px';
-      canvas.style.height = r.height + 'px';
+      W = r.width; H = r.height; groundY = H - 106;
+      canvas.width = Math.floor(W * ratio); canvas.height = Math.floor(H * ratio);
+      canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
       ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-      W = r.width;
-      H = r.height;
     }
 
     function startGame() {
@@ -241,254 +268,228 @@
       setTimeout(() => {
         resizeCanvas();
         cancelAnimationFrame(frameId);
-        player = { x: W / 2, y: H - 150, r: 23, speed: 7 };
-        items = [];
-        enemies = [];
-        score = 0;
-        level = 1;
-        xp = 0;
-        moveLeft = false;
-        moveRight = false;
-        spawnTick = 0;
-        enemyTick = 0;
-        invincible = false;
+        player = { x: W * .24, y: groundY - 58, w: 42, h: 58, vx: 0, vy: 0, facing: 1, onGround: true, attacking: 0, hp: 3 };
+        boss = { x: W * .75, y: groundY - 105, w: 94, h: 105, hp: 100, maxHp: 100, state: 'idle', timer: 115, hitFlash: 0, fistX: 0, fistY: 0 };
+        projectiles = [];
+        level = 1; xp = 0; moveLeft = false; moveRight = false; attackQueued = false; invuln = 0; bossAttackTimer = 120;
         gameRunning = true;
         updateUI();
-        gameMsg.innerHTML = 'FIGHT!<small>sammle die grüne energy</small>';
+        gameMsg.innerHTML = 'FIGHT!<small>HAU DEN BOSS. SPRING ÜBER SEINEN MÜLL.</small>';
         gameMsg.classList.add('show');
-        setTimeout(() => gameMsg.classList.remove('show'), 950);
+        setTimeout(() => gameMsg.classList.remove('show'), 1100);
         loop();
       }, 80);
     }
 
     function updateUI() {
-      const xpNeed = 5;
-      xpFill.style.width = ((xp / xpNeed) * 100) + '%';
+      enemyBar.style.width = Math.max(0, (boss.hp / boss.maxHp) * 100) + '%';
+      xpFill.style.width = ((xp % 5) / 5 * 100) + '%';
       levelText.innerText = 'LVL ' + level;
-      scoreText.innerText = 'GRÜNE ENERGY: ' + score + ' / ' + targetScore;
-      enemyBar.style.width = Math.max(0, 100 - (score / targetScore) * 100) + '%';
     }
 
     function loop() {
       if (!gameRunning) return;
-      update();
-      draw();
-      frameId = requestAnimationFrame(loop);
+      update(); draw(); frameId = requestAnimationFrame(loop);
     }
 
     function update() {
-      if (moveLeft) player.x -= player.speed;
-      if (moveRight) player.x += player.speed;
-      player.x = Math.max(30, Math.min(W - 30, player.x));
+      // Spieler Bewegung
+      let speed = 4.5 + Math.min(level, 4) * .25;
+      player.vx = 0;
+      if (moveLeft) { player.vx = -speed; player.facing = -1; }
+      if (moveRight) { player.vx = speed; player.facing = 1; }
+      player.x += player.vx;
+      player.x = Math.max(8, Math.min(W - player.w - 8, player.x));
+      player.vy += .58;
+      player.y += player.vy;
+      if (player.y + player.h >= groundY) { player.y = groundY - player.h; player.vy = 0; player.onGround = true; }
+      else player.onGround = false;
+      if (player.attacking > 0) player.attacking--;
+      if (invuln > 0) invuln--;
+      if (boss.hitFlash > 0) boss.hitFlash--;
 
-      spawnTick++;
-      enemyTick++;
-      const energyGap = Math.max(38, 73 - level * 8);
-      const enemyGap = Math.max(54, 132 - level * 17);
-
-      if (spawnTick >= energyGap) {
-        spawnTick = 0;
-        items.push({ x: 35 + Math.random() * (W - 70), y: -25, r: 13 + Math.random() * 4, vy: 2.4 + level * .35, spin: Math.random() * 6.2 });
+      // Angriff ausführen
+      if (attackQueued && player.attacking === 0) {
+        player.attacking = 18;
+        attackQueued = false;
       }
-      if (enemyTick >= enemyGap) {
-        enemyTick = 0;
-        enemies.push({ x: 38 + Math.random() * (W - 76), y: -36, r: 22 + Math.random() * 7, vy: 1.65 + level * .4, phase: Math.random() * 6.2 });
+      if (player.attacking === 13) {
+        const reach = 78;
+        const px = player.x + player.w / 2;
+        const bx = boss.x + boss.w / 2;
+        const closeEnough = Math.abs(px - bx) < reach + boss.w / 2;
+        const heightOkay = Math.abs((player.y + player.h / 2) - (boss.y + boss.h / 2)) < 90;
+        if (closeEnough && heightOkay) hitBoss();
       }
 
-      items.forEach(o => { o.y += o.vy; o.spin += .12; });
-      enemies.forEach(o => { o.y += o.vy; o.phase += .09; o.x += Math.sin(o.phase) * .85; });
-      items = items.filter(o => o.y < H + 45);
-      enemies = enemies.filter(o => o.y < H + 60);
-
-      for (let i = items.length - 1; i >= 0; i--) {
-        if (distance(player, items[i]) < player.r + items[i].r) {
-          items.splice(i, 1);
-          collectEnergy();
+      // Boss-Angriffssystem
+      boss.timer--;
+      if (boss.state === 'idle' && boss.timer <= 0) {
+        const distance = Math.abs((player.x + player.w/2) - (boss.x + boss.w/2));
+        if (distance < 180 || Math.random() < .55) {
+          boss.state = 'smashWindup'; boss.timer = 38;
+        } else {
+          boss.state = 'shootWindup'; boss.timer = 38;
         }
+      } else if (boss.state === 'smashWindup' && boss.timer <= 0) {
+        boss.state = 'smash'; boss.timer = 18;
+        boss.fistX = boss.x - 34; boss.fistY = groundY - 30;
+      } else if (boss.state === 'smash' && boss.timer === 12) {
+        if (hitRect({x:boss.fistX-36,y:boss.fistY-24,w:72,h:45}, player) && invuln === 0) hurtPlayer();
+      } else if (boss.state === 'shootWindup' && boss.timer <= 0) {
+        boss.state = 'shoot'; boss.timer = 14;
+        const startX = boss.x;
+        const startY = boss.y + 45;
+        const targetX = player.x + player.w/2;
+        const dx = targetX - startX;
+        projectiles.push({ x:startX, y:startY, r:15, vx: Math.sign(dx || -1) * (4.1 + level*.2), vy:-1.1, life:210, spin:0 });
+      } else if ((boss.state === 'smash' || boss.state === 'shoot') && boss.timer <= 0) {
+        boss.state = 'idle'; boss.timer = Math.max(56, 105 - level * 8);
       }
-      if (!invincible) {
-        for (let i = enemies.length - 1; i >= 0; i--) {
-          if (distance(player, enemies[i]) < player.r + enemies[i].r - 3) {
-            loseGame();
-            return;
-          }
-        }
+
+      // Projektile
+      projectiles.forEach(p => { p.x += p.vx; p.y += p.vy; p.vy += .08; p.spin += .18; p.life--; });
+      for (let i = projectiles.length - 1; i >= 0; i--) {
+        const p = projectiles[i];
+        if (p.y + p.r > groundY) { p.y = groundY-p.r; p.vy *= -.35; p.vx *= .82; }
+        if (circleRect(p, player) && invuln === 0) { projectiles.splice(i, 1); hurtPlayer(); continue; }
+        if (p.life <= 0 || p.x < -60 || p.x > W+60) projectiles.splice(i, 1);
       }
     }
 
-    function collectEnergy() {
-      score++;
+    function jump() {
+      if (gameRunning && player && player.onGround) { player.vy = -12.5; player.onGround = false; }
+    }
+    function attack() { if (gameRunning) attackQueued = true; }
+
+    function hitBoss() {
+      const dmg = 8 + level * 2;
+      boss.hp -= dmg;
+      boss.hitFlash = 7;
       xp++;
-      if (xp >= 5 && level < 3) {
-        level++;
-        xp = 0;
-        levelUp();
-      }
+      if (xp % 5 === 0 && level < 5) levelUp();
       updateUI();
-      if (score >= targetScore) winGame();
+      if (boss.hp <= 0) winGame();
     }
 
     function levelUp() {
-      invincible = true;
+      level++;
       gameMsg.innerHTML = 'LEVEL UP!<small>hier gibts aber kein skilltree was denkst du eig.</small>';
       gameMsg.classList.add('show');
-      setTimeout(() => { gameMsg.classList.remove('show'); invincible = false; }, 1800);
+      setTimeout(() => gameMsg.classList.remove('show'), 1650);
     }
 
-    function loseGame() {
-      gameRunning = false;
-      cancelAnimationFrame(frameId);
-      setTimeout(() => showScreen('loseScreen'), 200);
+    function hurtPlayer() {
+      player.hp--;
+      invuln = 72;
+      gameMsg.innerHTML = 'AU!<small>der boss ist eklig und unfair</small>';
+      gameMsg.classList.add('show');
+      setTimeout(() => gameMsg.classList.remove('show'), 700);
+      if (player.hp <= 0) {
+        gameRunning = false; cancelAnimationFrame(frameId);
+        setTimeout(() => showScreen('loseScreen'), 300);
+      }
     }
 
     function winGame() {
-      gameRunning = false;
-      cancelAnimationFrame(frameId);
+      gameRunning = false; cancelAnimationFrame(frameId);
       gameMsg.innerHTML = 'BOSS BESIEGT!<small>die grüne energy hat gewonnen</small>';
       gameMsg.classList.add('show');
       setTimeout(() => { gameMsg.classList.remove('show'); showScreen('winScreen'); }, 1150);
     }
 
-    function distance(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+    function hitRect(a,b) { return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y; }
+    function circleRect(c, r) { const x=Math.max(r.x,Math.min(c.x,r.x+r.w)); const y=Math.max(r.y,Math.min(c.y,r.y+r.h)); return (c.x-x)**2+(c.y-y)**2<c.r*c.r; }
 
     function draw() {
-      // billige Wüstenarena
-      const bg = ctx.createLinearGradient(0, 0, 0, H);
-      bg.addColorStop(0, '#46351a');
-      bg.addColorStop(.55, '#20160c');
-      bg.addColorStop(1, '#090705');
-      ctx.fillStyle = bg;
-      ctx.fillRect(0, 0, W, H);
-
-      // Sandlinien
-      ctx.strokeStyle = 'rgba(243,194,92,.14)';
-      ctx.lineWidth = 2;
-      for (let y = 115; y < H; y += 48) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        for (let x = 0; x <= W; x += 35) ctx.lineTo(x, y + Math.sin((x + y) * .04) * 8);
-        ctx.stroke();
-      }
-
-      // Energy
-      items.forEach(drawEnergy);
-      enemies.forEach(drawEnemy);
+      // Arena-Hintergrund
+      const bg = ctx.createLinearGradient(0,0,0,H);
+      bg.addColorStop(0,'#403117'); bg.addColorStop(.55,'#1d150c'); bg.addColorStop(1,'#070504');
+      ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
+      // Ruinen / Mond
+      ctx.fillStyle='rgba(241,201,102,.13)'; ctx.beginPath(); ctx.arc(W*.75,H*.18,55,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#130e09';
+      for(let i=0;i<9;i++){ const x=i*W/8-20; const hh=25+(i%3)*23; ctx.fillRect(x,groundY-hh,28,hh); }
+      // Boden
+      ctx.fillStyle='#2b1d0c'; ctx.fillRect(0,groundY,W,H-groundY);
+      ctx.strokeStyle='rgba(241,191,78,.22)'; ctx.lineWidth=2;
+      for(let x=0;x<W;x+=35){ctx.beginPath();ctx.moveTo(x,groundY);ctx.lineTo(x+20,H);ctx.stroke();}
+      drawBoss(boss);
+      projectiles.forEach(drawProjectile);
       drawKnight(player);
+      // Spieler HP als kleine Herzen/Schwerter
+      ctx.font='22px Arial'; ctx.textAlign='left'; ctx.fillStyle='#ff6b5c'; ctx.fillText('♥'.repeat(Math.max(0,player.hp))+'♡'.repeat(Math.max(0,3-player.hp)),14,H-116);
     }
 
     function drawKnight(p) {
-      ctx.save();
-      ctx.translate(p.x, p.y);
+      ctx.save(); ctx.translate(p.x+p.w/2,p.y+p.h/2);
+      if (invuln>0 && Math.floor(invuln/5)%2===0) ctx.globalAlpha=.36;
+      const flip=p.facing; ctx.scale(flip,1);
       // Umhang
-      ctx.fillStyle = '#187d3c';
-      ctx.beginPath();
-      ctx.moveTo(-18, -2); ctx.lineTo(-28, 42); ctx.lineTo(25, 42); ctx.lineTo(17, -2); ctx.closePath(); ctx.fill();
-      // Körper Rüstung
-      ctx.fillStyle = '#49c95a';
-      ctx.strokeStyle = '#bfe798';
-      ctx.lineWidth = 3;
-      ctx.beginPath(); ctx.roundRect(-18, -10, 36, 42, 7); ctx.fill(); ctx.stroke();
+      ctx.fillStyle='#16713a'; ctx.beginPath();ctx.moveTo(-15,-8);ctx.lineTo(-25,32);ctx.lineTo(19,32);ctx.lineTo(17,-8);ctx.closePath();ctx.fill();
+      // Rüstung
+      ctx.fillStyle='#48c957';ctx.strokeStyle='#c7f2a0';ctx.lineWidth=3;ctx.beginPath();ctx.roundRect(-16,-10,32,35,6);ctx.fill();ctx.stroke();
       // Helm
-      ctx.fillStyle = '#b8c3b8';
-      ctx.beginPath(); ctx.arc(0, -24, 21, Math.PI, 0); ctx.lineTo(21, -8); ctx.lineTo(-21, -8); ctx.closePath(); ctx.fill();
-      ctx.strokeStyle = '#5d6a5d'; ctx.lineWidth = 3; ctx.stroke();
-      // Visier
-      ctx.fillStyle = '#101613'; ctx.fillRect(-15, -24, 30, 9);
-      // Xbox X
-      ctx.strokeStyle = '#eaffd3'; ctx.lineWidth = 4;
-      ctx.beginPath(); ctx.moveTo(-8, 3); ctx.lineTo(8, 20); ctx.moveTo(8, 3); ctx.lineTo(-8, 20); ctx.stroke();
-      // Schwert
-      ctx.strokeStyle = '#ded7bd'; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(20, 7); ctx.lineTo(37, -25); ctx.stroke();
-      ctx.strokeStyle = '#d4a741'; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(14, 11); ctx.lineTo(29, 18); ctx.stroke();
+      ctx.fillStyle='#bec8bd';ctx.strokeStyle='#59645a';ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,-21,18,Math.PI,0);ctx.lineTo(18,-7);ctx.lineTo(-18,-7);ctx.closePath();ctx.fill();ctx.stroke();
+      ctx.fillStyle='#111713';ctx.fillRect(-13,-21,26,8);
+      // X auf Brust
+      ctx.strokeStyle='#ecffd7';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(-7,0);ctx.lineTo(7,15);ctx.moveTo(7,0);ctx.lineTo(-7,15);ctx.stroke();
+      // Schwert beim Angriff
+      const a = p.attacking>0 ? -1.05 : -.32;
+      ctx.save();ctx.translate(16,0);ctx.rotate(a);ctx.strokeStyle='#e7dfc2';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(0,5);ctx.lineTo(37,-17);ctx.stroke();ctx.strokeStyle='#d6a941';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(-6,5);ctx.lineTo(7,15);ctx.stroke();ctx.restore();
       ctx.restore();
     }
 
-    function drawEnergy(o) {
-      ctx.save();
-      ctx.translate(o.x, o.y);
-      ctx.rotate(o.spin);
-      ctx.shadowColor = '#57ff65'; ctx.shadowBlur = 18;
-      ctx.fillStyle = '#4be65a';
-      ctx.beginPath(); ctx.moveTo(0, -o.r); ctx.lineTo(o.r, 0); ctx.lineTo(0, o.r); ctx.lineTo(-o.r, 0); ctx.closePath(); ctx.fill();
-      ctx.fillStyle = '#dcffad';
-      ctx.font = 'bold ' + Math.max(12, o.r) + 'px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('+', 0, 1);
-      ctx.restore();
-    }
-
-    function drawEnemy(o) {
-      ctx.save();
-      ctx.translate(o.x, o.y);
-      ctx.rotate(Math.sin(o.phase) * .25);
-      // ekliger Schleimkopf
-      ctx.fillStyle = '#d6b8a0';
-      ctx.strokeStyle = '#682b38';
-      ctx.lineWidth = 3;
-      ctx.beginPath(); ctx.arc(0, 0, o.r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    function drawBoss(b) {
+      ctx.save();ctx.translate(b.x+b.w/2,b.y+b.h/2);
+      if(b.hitFlash>0) ctx.filter='brightness(2.8) saturate(.2)';
+      // ekliger Umhang
+      ctx.fillStyle='#452035';ctx.beginPath();ctx.moveTo(-42,-21);ctx.lineTo(-54,51);ctx.lineTo(52,51);ctx.lineTo(43,-21);ctx.closePath();ctx.fill();
+      // Schleimkopf
+      ctx.fillStyle='#d6b8a0';ctx.strokeStyle='#682b38';ctx.lineWidth=4;ctx.beginPath();ctx.arc(0,-25,42,0,Math.PI*2);ctx.fill();ctx.stroke();
       // Pickel
-      ctx.fillStyle = '#8f2c32';
-      for (let i = 0; i < 5; i++) {
-        const a = i * 1.256; ctx.beginPath(); ctx.arc(Math.cos(a) * o.r * .55, Math.sin(a) * o.r * .55, 3.5, 0, Math.PI * 2); ctx.fill();
-      }
+      ctx.fillStyle='#962b31';for(let i=0;i<8;i++){let a=i*.785;ctx.beginPath();ctx.arc(Math.cos(a)*27, -25+Math.sin(a)*26,4,0,Math.PI*2);ctx.fill();}
       // PS-artige Augen
-      ctx.fillStyle = '#252059';
-      ctx.beginPath(); ctx.arc(-o.r*.34, -4, o.r*.19, 0, Math.PI*2); ctx.arc(o.r*.34, -4, o.r*.19, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#fff';
-      ctx.beginPath(); ctx.arc(-o.r*.30, -5, 3, 0, Math.PI*2); ctx.arc(o.r*.30, -5, 3, 0, Math.PI*2); ctx.fill();
-      // komischer Mund
-      ctx.strokeStyle = '#4d1116'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(0, o.r*.22, o.r*.42, 0, Math.PI); ctx.stroke();
-      // kleines PS (nur Text, kein Logo)
-      ctx.fillStyle = '#5c4dc7'; ctx.font = 'bold ' + Math.max(10, o.r*.48) + 'px Arial'; ctx.textAlign = 'center'; ctx.fillText('PS', 0, o.r + 13);
+      ctx.fillStyle='#29235a';ctx.beginPath();ctx.arc(-15,-31,10,0,Math.PI*2);ctx.arc(15,-31,10,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(-12,-33,3,0,Math.PI*2);ctx.arc(18,-33,3,0,Math.PI*2);ctx.fill();
+      // Mund
+      ctx.strokeStyle='#501217';ctx.lineWidth=6;ctx.beginPath();ctx.arc(0,-9,20,0,Math.PI);ctx.stroke();
+      // Körper
+      ctx.fillStyle='#5140a2';ctx.fillRect(-34,14,68,42);ctx.fillStyle='#dcd4ff';ctx.font='bold 20px Arial';ctx.textAlign='center';ctx.fillText('PS',0,42);
+      // Arm / Faust beim Smash
+      if(b.state==='smashWindup' || b.state==='smash'){
+        ctx.strokeStyle='#d6b8a0';ctx.lineWidth=18;ctx.beginPath();ctx.moveTo(-33,10);ctx.lineTo(-78, b.state==='smash'?54:24);ctx.stroke();
+      }
       ctx.restore();
+      if(b.state==='smash'){
+        ctx.fillStyle='rgba(237,80,55,.45)';ctx.beginPath();ctx.arc(b.fistX,b.fistY,42,0,Math.PI*2);ctx.fill();
+      }
+    }
+
+    function drawProjectile(p) {
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.spin);ctx.shadowColor='#b85aff';ctx.shadowBlur=14;ctx.fillStyle='#8a3ec7';ctx.beginPath();ctx.arc(0,0,p.r,0,Math.PI*2);ctx.fill();ctx.fillStyle='#d8c1ff';ctx.font='bold 12px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('PS',0,1);ctx.restore();
     }
 
     function holdButton(id, setter) {
-      const b = document.getElementById(id);
-      const on = e => { e.preventDefault(); setter(true); };
-      const off = e => { e.preventDefault(); setter(false); };
-      b.addEventListener('pointerdown', on);
-      ['pointerup','pointerleave','pointercancel'].forEach(ev => b.addEventListener(ev, off));
+      const b=document.getElementById(id); const on=e=>{e.preventDefault();setter(true)};const off=e=>{e.preventDefault();setter(false)};
+      b.addEventListener('pointerdown',on);['pointerup','pointerleave','pointercancel'].forEach(ev=>b.addEventListener(ev,off));
     }
-    holdButton('leftBtn', v => moveLeft = v);
-    holdButton('rightBtn', v => moveRight = v);
-
-    window.addEventListener('keydown', e => {
-      if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') moveLeft = true;
-      if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') moveRight = true;
-    });
-    window.addEventListener('keyup', e => {
-      if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') moveLeft = false;
-      if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') moveRight = false;
-    });
-    window.addEventListener('resize', () => { if (gameRunning) resizeCanvas(); });
+    holdButton('leftBtn',v=>moveLeft=v);holdButton('rightBtn',v=>moveRight=v);
+    document.getElementById('jumpBtn').addEventListener('pointerdown',e=>{e.preventDefault();jump()});
+    document.getElementById('attackBtn').addEventListener('pointerdown',e=>{e.preventDefault();attack()});
+    window.addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(k==='arrowleft'||k==='a')moveLeft=true;if(k==='arrowright'||k==='d')moveRight=true;if(k===' '||k==='w'||k==='arrowup'){e.preventDefault();jump()}if(k==='f'||k==='x')attack()});
+    window.addEventListener('keyup',e=>{const k=e.key.toLowerCase();if(k==='arrowleft'||k==='a')moveLeft=false;if(k==='arrowright'||k==='d')moveRight=false});
+    window.addEventListener('resize',()=>{if(gameRunning)resizeCanvas()});
 
     function copyCode() {
-      const code = document.getElementById('psnCode').innerText.trim();
-      navigator.clipboard.writeText(code).then(() => {
-        document.getElementById('copyHint').innerText = '✅ Code wurde kopiert. JETZT DUNE ZOCKEN.';
-      }).catch(() => {
-        document.getElementById('copyHint').innerText = 'Code lange drücken / markieren und selbst kopieren.';
-      });
+      const code=document.getElementById('psnCode').innerText.trim();
+      navigator.clipboard.writeText(code).then(()=>{document.getElementById('copyHint').innerText='✅ Code wurde kopiert. JETZT DUNE ZOCKEN.'}).catch(()=>{document.getElementById('copyHint').innerText='Code lange drücken / markieren und selbst kopieren.'});
     }
 
     function startConfetti() {
-      stopConfetti();
-      const colors = ['#e53935','#f4ce45','#3a83ed','#35b858','#ba4de0','#ff861c'];
-      confettiTimer = setInterval(() => {
-        const c = document.createElement('i');
-        c.className = 'confetti';
-        c.style.left = Math.random() * 100 + 'vw';
-        c.style.background = colors[Math.floor(Math.random() * colors.length)];
-        c.style.animationDuration = (2 + Math.random() * 2.2) + 's';
-        c.style.setProperty('--drift', ((Math.random() - .5) * 42) + 'vw');
-        document.body.appendChild(c);
-        setTimeout(() => c.remove(), 5000);
-      }, 90);
+      stopConfetti();const colors=['#e53935','#f4ce45','#3a83ed','#35b858','#ba4de0','#ff861c'];
+      confettiTimer=setInterval(()=>{const c=document.createElement('i');c.className='confetti';c.style.left=Math.random()*100+'vw';c.style.background=colors[Math.floor(Math.random()*colors.length)];c.style.animationDuration=(2+Math.random()*2.2)+'s';c.style.setProperty('--drift',((Math.random()-.5)*42)+'vw');document.body.appendChild(c);setTimeout(()=>c.remove(),5000)},90);
     }
-    function stopConfetti() {
-      clearInterval(confettiTimer);
-      confettiTimer = null;
-      document.querySelectorAll('.confetti').forEach(c => c.remove());
-    }
+    function stopConfetti(){clearInterval(confettiTimer);confettiTimer=null;document.querySelectorAll('.confetti').forEach(c=>c.remove())}
   </script>
 </body>
 </html>

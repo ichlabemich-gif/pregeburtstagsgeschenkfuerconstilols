@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Du hast gewonnen!!!!</title>
+  <style>
+    :root {
+      --blue: #1688ff;
+      --green: #1fc452;
+      --pink: #ff3fa4;
+      --red: #ef2020;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #fff;
+      color: #151515;
+      font-family: Arial, Helvetica, sans-serif;
+      overflow-x: hidden;
+    }
+
+    .page {
+      display: none;
+      width: 100%;
+      min-height: 100vh;
+      padding: 28px 18px 44px;
+      text-align: center;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .page.active { display: flex; }
+
+    .content {
+      width: min(100%, 620px);
+      margin: auto;
+    }
+
+    h1, h2, p { margin: 0; }
+
+    .normal { font-weight: 400; }
+
+    .main-title {
+      font-size: clamp(2.3rem, 11vw, 4.8rem);
+      line-height: 0.95;
+      margin-bottom: 18px;
+      animation: cheapJump 0.75s infinite alternate ease-in-out;
+      text-shadow: 3px 3px 0 #ffeb3b, -2px -2px 0 #00c8ff;
+    }
+
+    .rainbow-letters span:nth-child(6n+1) { color: #f51d1d; }
+    .rainbow-letters span:nth-child(6n+2) { color: #ff8717; }
+    .rainbow-letters span:nth-child(6n+3) { color: #d8b600; }
+    .rainbow-letters span:nth-child(6n+4) { color: #14a842; }
+    .rainbow-letters span:nth-child(6n+5) { color: #1688ff; }
+    .rainbow-letters span:nth-child(6n) { color: #9c29e8; }
+
+    .img {
+      display: block;
+      width: 100%;
+      max-width: 460px;
+      max-height: 46vh;
+      margin: 20px auto;
+      object-fit: contain;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0,0,0,.2);
+    }
+
+    .clown { animation: wobble 1s infinite ease-in-out; }
+    .odd { animation: sillySpin 2.7s infinite ease-in-out; }
+    .sad { animation: sadShake 0.45s infinite; }
+    .winner { animation: winnerPop 0.85s infinite alternate ease-out; }
+
+    .big-button, .answer-button, .back-button, .code-button {
+      appearance: none;
+      border: 4px solid #111;
+      color: #fff;
+      font-weight: 900;
+      font-size: 1.2rem;
+      padding: 14px 22px;
+      margin: 10px auto;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 5px 5px 0 #111;
+      transition: transform .1s, box-shadow .1s;
+    }
+
+    .big-button:active, .answer-button:active, .back-button:active, .code-button:active {
+      transform: translate(4px, 4px);
+      box-shadow: 1px 1px 0 #111;
+    }
+
+    .blue { background: var(--blue); }
+    .green { background: var(--green); }
+    .red { background: var(--red); }
+    .blue-red { background: linear-gradient(135deg, #147dff 0 50%, #f32828 50% 100%); }
+
+    .question-title {
+      color: var(--pink);
+      font-size: clamp(2rem, 9vw, 3.8rem);
+      line-height: 1;
+      margin-bottom: 18px;
+      animation: cheapBounce .65s infinite alternate;
+    }
+
+    .click-button { animation: pulseAndTilt .75s infinite alternate; }
+
+    .question {
+      font-size: clamp(1.75rem, 7vw, 3rem);
+      font-weight: 900;
+      line-height: 1.05;
+      margin-bottom: 22px;
+      animation: questionWiggle 1.2s infinite;
+    }
+
+    .answers {
+      display: grid;
+      gap: 12px;
+      max-width: 360px;
+      margin: 0 auto;
+    }
+
+    .answer-button { width: 100%; }
+
+    .leberkese {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: #6f3d11;
+      cursor: pointer;
+      text-decoration: underline wavy #ffab31 3px;
+      padding: 12px;
+      border: 3px dashed #ffab31;
+      border-radius: 12px;
+      background: #fff5d8;
+      animation: leberDance .5s infinite alternate;
+    }
+
+    .empty-answer {
+      min-height: 60px;
+      border: 3px dashed #aaa;
+      border-radius: 12px;
+      background: #f7f7f7;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .empty-answer::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+    }
+
+    .wrong-title {
+      color: var(--red);
+      font-size: clamp(2rem, 9vw, 4rem);
+      line-height: 1;
+      margin-bottom: 14px;
+      animation: wrongGlitch .35s infinite;
+    }
+
+    .wrong-gif {
+      width: min(100%, 330px);
+      margin: 8px auto 16px;
+      border-radius: 10px;
+      display: block;
+    }
+
+    .right-text {
+      font-size: clamp(1.45rem, 6vw, 2.55rem);
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: 18px;
+      animation: rainbowText 1.2s linear infinite, cheapBounce .7s infinite alternate;
+    }
+
+    .small-button { font-size: 1rem; padding: 10px 17px; }
+
+    .code-title {
+      font-size: clamp(2rem, 9vw, 4rem);
+      margin-bottom: 14px;
+      animation: cheapJump .75s infinite alternate;
+    }
+
+    .amount {
+      font-size: clamp(2rem, 9vw, 4rem);
+      font-weight: 900;
+      color: #20a342;
+      margin: 10px 0 20px;
+      transform: rotate(-2deg);
+    }
+
+    .code-label { font-size: 1.2rem; font-weight: 800; margin-bottom: 10px; }
+
+    .code-box {
+      background: #111;
+      color: #fff;
+      border: 5px dashed #ffdd00;
+      border-radius: 14px;
+      padding: 20px 12px;
+      font-family: Consolas, monospace;
+      font-size: clamp(1.2rem, 6vw, 2rem);
+      font-weight: 900;
+      letter-spacing: 2px;
+      word-break: break-all;
+      margin: 0 auto 18px;
+      max-width: 510px;
+    }
+
+    .hint { font-size: .9rem; color: #555; margin-top: 14px; }
+
+    @keyframes cheapJump {
+      from { transform: translateY(0) rotate(-2deg) scale(1); }
+      to { transform: translateY(-18px) rotate(2deg) scale(1.05); }
+    }
+    @keyframes wobble {
+      0%, 100% { transform: rotate(-4deg) translateX(-4px); }
+      50% { transform: rotate(5deg) translateX(5px) scale(1.03); }
+    }
+    @keyframes sillySpin {
+      0%, 100% { transform: rotate(-5deg) scale(1); }
+      50% { transform: rotate(5deg) scale(1.06); }
+    }
+    @keyframes cheapBounce { from { transform: translateY(0) scale(1); } to { transform: translateY(-12px) scale(1.06); } }
+    @keyframes pulseAndTilt { from { transform: scale(1) rotate(-2deg); } to { transform: scale(1.1) rotate(2deg); } }
+    @keyframes questionWiggle { 0%,100%{transform:rotate(-1deg)} 50%{transform:rotate(1deg) scale(1.02)} }
+    @keyframes leberDance { from{transform:rotate(-2deg)} to{transform:rotate(2deg) scale(1.04)} }
+    @keyframes sadShake { 0%,100%{transform:translateX(-4px) rotate(-1deg)} 50%{transform:translateX(4px) rotate(1deg)} }
+    @keyframes wrongGlitch { 0%{transform:translateX(-3px)} 50%{transform:translateX(3px) skewX(-2deg)} 100%{transform:translateX(-2px)} }
+    @keyframes winnerPop { from { transform: scale(.78) rotate(-4deg); } to { transform: scale(1.08) rotate(4deg); } }
+    @keyframes rainbowText { 0%{color:#f21c1c} 20%{color:#ff851b} 40%{color:#c59f00} 60%{color:#0fae49} 80%{color:#146dff} 100%{color:#a125e8} }
+  </style>
+</head>
+<body>
+
+  <!-- Seite 1 -->
+  <section class="page active" id="page1">
+    <div class="content">
+      <h1 class="main-title rainbow-letters" aria-label="Du hast gewonnen!!!!!! 1!!">
+        <span>D</span><span>u</span> <span>h</span><span>a</span><span>s</span><span>t</span><br>
+        <span>g</span><span>e</span><span>w</span><span>o</span><span>n</span><span>n</span><span>e</span><span>n</span><span>!</span><span>!</span><span>!</span><span>!</span><span>!</span><span>!</span> <span>1</span><span>!</span><span>!</span>
+      </h1>
+      <img class="img clown" src="https://c8.alamy.com/compde/ct8220/clown-mit-trompete-ct8220.jpg" alt="Clown mit Trompete" />
+      <button class="big-button blue" onclick="goTo('page2')">WAS HAB ICH GEWONNEN???</button>
+      <p class="hint">Sound ist hier absichtlich nicht automatisch: Browser blockieren Autoplay oft.</p>
+    </div>
+  </section>
+
+  <!-- Seite 2 -->
+  <section class="page" id="page2">
+    <div class="content">
+      <h1 class="question-title">du musst nur 1 frage<br>beantworten richtig</h1>
+      <img class="img odd" src="https://cdn.pixabay.com/photo/2022/04/08/23/26/odd-7120499_1280.png" alt="Komisches Bild" />
+      <button class="big-button blue click-button" onclick="goTo('page3')">klick hier doch.</button>
+    </div>
+  </section>
+
+  <!-- Seite 3 -->
+  <section class="page" id="page3">
+    <div class="content">
+      <h1 class="question">die nächste konsole bei dir soll welche farbe werden?</h1>
+      <div class="answers">
+        <button class="answer-button blue" onclick="wrongAnswer()">Blau</button>
+        <div class="leberkese" role="button" tabindex="0" onclick="wrongAnswer()" onkeydown="if(event.key==='Enter') wrongAnswer()">leberkese</div>
+        <button class="answer-button green" onclick="rightAnswer()">Grün</button>
+        <div class="empty-answer" role="button" tabindex="0" aria-label="Leere Antwort" onclick="wrongAnswer()" onkeydown="if(event.key==='Enter') wrongAnswer()"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Falsch -->
+  <section class="page" id="wrong">
+    <div class="content">
+      <h1 class="wrong-title">Ouh kage man das war jz falsch hahav ohman.</h1>
+      <img class="img sad" src="https://e1.pngegg.com/pngimages/398/299/png-clipart-vk-com-memes-sad-face-thumbnail.png" alt="Trauriges Gesicht" />
+      <img class="wrong-gif" src="https://i.pinimg.com/originals/7e/e5/64/7ee564be85f1e67b3f37292ad2daee0e.gif" alt="Trauriges GIF" />
+      <button class="back-button blue" onclick="goTo('page2')">nochmal zurück zu seite 2</button>
+    </div>
+  </section>
+
+  <!-- Richtig -->
+  <section class="page" id="right">
+    <div class="content">
+      <h1 class="right-text">!!!!!! Richtig natürlich wirds die xbox dann<br><br>passt, jz eh hah hast gewonnen und ich schenk dir ein code zum geburtstag auch wenns noch nich dein geburtstag is aber wir müssen Dune zocken !!</h1>
+      <img class="img winner" src="https://i.pinimg.com/736x/4f/9f/e8/4f9fe89f4ed51127618a21c74b89594e.jpg" alt="Gewonnen" />
+      <button class="big-button small-button blue-red" onclick="goTo('code')">hier zum code.</button>
+    </div>
+  </section>
+
+  <!-- Code -->
+  <section class="page" id="code">
+    <div class="content">
+      <h1 class="code-title">PSN GUTHABEN</h1>
+      <p class="amount">67.2509€</p>
+      <p class="code-label">code:</p>
+      <!-- ERSETZE UNTEN NUR DEN TEXT DEIN-PSN-CODE-HIER MIT DEM ECHTEN CODE -->
+      <div class="code-box" id="psnCode">DEIN-PSN-CODE-HIER</div>
+      <button class="code-button blue-red" onclick="copyCode()">CODE KOPIEREN</button>
+      <p class="hint" id="copyHint">Dann direkt im PlayStation Store einlösen. Dune wartet.</p>
+    </div>
+  </section>
+
+  <script>
+    function goTo(id) {
+      document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function wrongAnswer() {
+      goTo('wrong');
+    }
+
+    function rightAnswer() {
+      goTo('right');
+    }
+
+    function copyCode() {
+      const code = document.getElementById('psnCode').innerText.trim();
+      navigator.clipboard.writeText(code).then(() => {
+        document.getElementById('copyHint').innerText = '✅ Code wurde kopiert. JETZT DUNE ZOCKEN.';
+      }).catch(() => {
+        document.getElementById('copyHint').innerText = 'Code lange drücken / markieren und selbst kopieren.';
+      });
+    }
+  </script>
+</body>
+</html>
